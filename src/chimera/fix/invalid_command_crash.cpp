@@ -12,6 +12,9 @@
 extern "C" {
     void *halo_get_function_index_fn = nullptr;
     void *halo_get_global_index_fn = nullptr;
+    void **halo_try_parse_node_literal_fn_list = nullptr;
+    void **invalid_global_crash_script_node_table_ptr = nullptr; // awful decoration to avoid a name clash
+    void *invalid_global_crash_compile_error_report = nullptr; // awful decoration to avoid a name clash
     void handle_invalid_command_crash_asm() noexcept;
     void handle_invalid_global_crash_asm() noexcept;
 
@@ -96,6 +99,9 @@ namespace Chimera {
 
         static Hook hook_global;
         halo_get_global_index_fn = reinterpret_cast<void *>(get_chimera().get_signature("get_global_index_sig").data());
+        halo_try_parse_node_literal_fn_list = *reinterpret_cast<void ***>(get_chimera().get_signature("try_parse_node_literal_fn_list_sig").data() + 8);
+        invalid_global_crash_script_node_table_ptr = *reinterpret_cast<void ***>(get_chimera().get_signature("script_node_table_sig").data() + 1);
+        invalid_global_crash_compile_error_report = *reinterpret_cast<void **>(get_chimera().get_signature("compile_expression_error_reason_sig").data() + 2);
         write_jmp_call(get_chimera().get_signature("get_global_indices_map_load_sig").data(), hook_global, nullptr, reinterpret_cast<const void *>(handle_invalid_global_crash_asm), false);
 
         add_preframe_event(should_ignore_broken_globals_asm, EventPriority::EVENT_PRIORITY_BEFORE);
