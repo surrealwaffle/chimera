@@ -1,0 +1,6 @@
+This page documents the changes made to the library source.
+
+Added 
+    #pragma GCC diagnostic ignored "-Wold-style-cast"
+for GCC where appropriate.
+Unfortunately, there are a bunch of these casts and I don't have the time to go and track them all down.

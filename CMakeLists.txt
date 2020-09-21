@@ -50,6 +50,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBUILD_DATE=\\\"${TODAY}\\\"")
 # No errors pls
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32 -Wall -pedantic -Wextra -masm=intel -Wold-style-cast")
 
+# Dear ImGui
+#
+# Immediate mode GUI, for use in the creation of UI elements from scripts.
+include("src/dear_imgui/dear_imgui.cmake")
+
 # Chimera
 #
 # The mod we've all been waiting for
