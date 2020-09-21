@@ -5,8 +5,8 @@
 #include "../event/d3d9_reset.hpp"
 #include "../event/d3d9_end_scene.hpp"
 #include "../event/game_quit.hpp"
-#include "dear_imgui/imgui.h"
-#include "dear_imgui/imgui_impl_dx9.h"
+#include "imgui.h"
+#include "imgui_impl_dx9.h"
 
 namespace {
     bool imgui_initialized = false;

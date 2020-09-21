@@ -545,6 +545,14 @@ namespace Chimera {
             setting = new_setting;
         }
     }
+    
+    std::pair<long, long> get_widescreen_horizontal_extents() noexcept {
+        return {widescreen_mouse_left_bounds, widescreen_mouse_right_bounds};
+    }
+    
+    std::pair<long, long> get_widescreen_vertical_extents() noexcept {
+        return {0L, 480L};
+    }
 
     extern void set_block_zoom_blur_disabled(bool disabled);
 
