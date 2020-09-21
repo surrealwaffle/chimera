@@ -15,3 +15,5 @@ target_compile_options(dear_imgui
 target_include_directories(dear_imgui
     PUBLIC src/dear_imgui/include
 )
+
+include("src/dear_imgui/implot/implot.cmake")
