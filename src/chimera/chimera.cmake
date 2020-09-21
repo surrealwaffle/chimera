@@ -160,7 +160,7 @@ add_library(chimera STATIC
     src/chimera/halo_data/tag.cpp
     src/chimera/halo_data/widget.cpp
     src/chimera/halo_data/window.cpp
-    src/chimera/imgui/imgui.cpp
+    src/chimera/imgui/chimera_imgui.cpp
     src/chimera/localization/localization.cpp
     src/chimera/lua/instance.cpp
     src/chimera/lua/io.cpp
