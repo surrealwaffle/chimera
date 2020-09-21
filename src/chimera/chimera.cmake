@@ -137,6 +137,7 @@ add_library(chimera STATIC
     src/chimera/halo_data/game_engine.cpp
     src/chimera/halo_data/hud_fonts.cpp
     src/chimera/halo_data/hud_fonts.S
+    src/chimera/halo_data/input_devices.cpp
     src/chimera/halo_data/keyboard.cpp
     src/chimera/halo_data/light.cpp
     src/chimera/halo_data/map.cpp
@@ -157,6 +158,8 @@ add_library(chimera STATIC
     src/chimera/halo_data/script.S
     src/chimera/halo_data/server.cpp
     src/chimera/halo_data/tag.cpp
+    src/chimera/halo_data/widget.cpp
+    src/chimera/halo_data/window.cpp
     src/chimera/imgui/imgui.cpp
     src/chimera/localization/localization.cpp
     src/chimera/lua/instance.cpp
