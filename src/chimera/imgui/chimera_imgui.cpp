@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-#include "imgui.hpp"
+#include "chimera_imgui.hpp"
 #include <d3d9.h>
 #include "../event/d3d9_reset.hpp"
 #include "../event/d3d9_end_scene.hpp"
