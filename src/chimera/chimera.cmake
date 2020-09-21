@@ -52,6 +52,7 @@ add_library(chimera STATIC
     src/chimera/event/damage.cpp
     src/chimera/event/damage.S
     src/chimera/event/frame.cpp
+    src/chimera/event/game_quit.cpp
     src/chimera/event/map_load.cpp
     src/chimera/event/tick.cpp
     src/chimera/fast_load/crc32.c
@@ -156,6 +157,7 @@ add_library(chimera STATIC
     src/chimera/halo_data/script.S
     src/chimera/halo_data/server.cpp
     src/chimera/halo_data/tag.cpp
+    src/chimera/imgui/imgui.cpp
     src/chimera/localization/localization.cpp
     src/chimera/lua/instance.cpp
     src/chimera/lua/io.cpp
@@ -202,7 +204,7 @@ target_include_directories(chimera
 )
 
 # Set the name
-target_link_libraries(chimera shlwapi hac_map_downloader ${CMAKE_CURRENT_SOURCE_DIR}/ext/curl/lib/libcurl.a ws2_32)
+target_link_libraries(chimera shlwapi hac_map_downloader dear_imgui ${CMAKE_CURRENT_SOURCE_DIR}/ext/curl/lib/libcurl.a ws2_32)
 
 # Target this
 target_include_directories(chimera PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/ext/zstd/include)

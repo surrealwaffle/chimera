@@ -11,6 +11,7 @@
 #include "custom_chat/custom_chat.hpp"
 #include "config/config.hpp"
 #include "console/console.hpp"
+#include "imgui/imgui.hpp"
 #include "localization/localization.hpp"
 #include "halo_data/script.hpp"
 #include "event/frame.hpp"
@@ -594,6 +595,9 @@ namespace Chimera {
 
             // Load the custom chat
             initialize_custom_chat();
+            
+            // Set up immediate mode GUI platform binding
+            initialize_imgui();
 
             // If we're using a custom console, set that up
             if(chimera->get_ini()->get_value_bool("custom_console.enabled").value_or(false)) {
