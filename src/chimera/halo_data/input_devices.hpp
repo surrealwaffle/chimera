@@ -62,7 +62,6 @@ namespace Chimera {
          * For instance, if this value is `true`, then `enumerated_devices.direct_mouse_state`
          * is ignored and mouse input is pulled from `enumerated_devices.virtual_mouse_state`.
          *
-         * This was presumably implemented for Gearbox to have a consist device to test.
          * This value is set to `false` when the input devices are unacquired.
          */
         bool use_virtual_input;
@@ -109,7 +108,7 @@ namespace Chimera {
          * Get the input device and state globals
          * @return reference to the input globals
          */
-        InputGlobals &get_input_globals();
+        static InputGlobals &get_input_globals();
     };
     static_assert(sizeof(InputGlobals) == 0x1470);
 }

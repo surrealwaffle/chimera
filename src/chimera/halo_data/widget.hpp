@@ -143,9 +143,8 @@ namespace Chimera {
     /**
      * Mostly values pertaining to the widget cursor's positioning and movement.
      *
-     * Widgets in vanilla Halo work in a 640 by 480 grid, regardless of resolution and window client dimensions.
-     * Chimera upgrades this with the widescreen fix, but one still needs to be careful about how the
-     * widget cursor coordinates translate to screen coordinates.
+     * Widgets in vanilla Halo work in a 640 by 480 grid.
+     * Chimera upgrades this with the widescreen fix.
      * #get_client_normalized_position() and #get_framebuffer_position() are provided, to ease translation.
      */
     struct WidgetCursorGlobals {
