@@ -18,7 +18,7 @@ namespace Chimera {
          * Get the window globals.
          * @return reference to the window globals.
          */
-        WindowGlobals &get_window_globals();
+        static WindowGlobals &get_window_globals();
     };
     static_assert(sizeof(WindowGlobals) == 0x18);
 }

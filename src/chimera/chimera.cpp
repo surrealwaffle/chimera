@@ -11,7 +11,7 @@
 #include "custom_chat/custom_chat.hpp"
 #include "config/config.hpp"
 #include "console/console.hpp"
-#include "imgui/imgui.hpp"
+#include "imgui/chimera_imgui.hpp"
 #include "localization/localization.hpp"
 #include "halo_data/script.hpp"
 #include "event/frame.hpp"

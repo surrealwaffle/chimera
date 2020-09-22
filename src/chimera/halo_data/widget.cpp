@@ -31,7 +31,7 @@ namespace Chimera {
     }
     
     std::pair<float, float> WidgetCursorGlobals::get_framebuffer_position() {
-        static D3DPRESENT_PARAMETERS *present_parameters = *reinterpret_cast<D3DPRESENT_PARAMETERS **>(get_chimera().get_signature("d3d9_present_parameters_sig").data() + 6);
+        static const D3DPRESENT_PARAMETERS *present_parameters = *reinterpret_cast<D3DPRESENT_PARAMETERS **>(get_chimera().get_signature("d3d9_present_parameters_sig").data() + 6);
         
         const auto [normalized_x, normalized_y] = get_client_normalized_position();
         return {normalized_x * present_parameters->BackBufferWidth, normalized_y * present_parameters->BackBufferHeight};
