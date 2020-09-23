@@ -56,6 +56,7 @@ namespace Chimera {
         if (!context_initialized) {
             IMGUI_CHECKVERSION();
             ImGui::CreateContext();
+            ImPlot::CreateContext();
             context_initialized = true;
         }
         
