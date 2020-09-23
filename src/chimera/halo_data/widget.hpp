@@ -148,9 +148,29 @@ namespace Chimera {
      * #get_client_normalized_position() and #get_framebuffer_position() are provided, to ease translation.
      */
     struct WidgetCursorGlobals {
-        bool unknown_lock;     ///< Set and checked to prevents recursion.
-        bool use_get_cursor;   ///< Set to `true` to calculate cursor position using `GetCursor`.
-        bool position_changed; ///< Set to `true` if the positon of the cursor changed this update.
+        // Note: Trial has a different layout than the full version (PC/CE).
+        // The anonymous union below resolves this.
+        // Getters/setters should be used to present them in an agnostic manner.
+        union {
+            struct {
+                /** If `true`, Halo will use `GetCursor()` to calculate changes in cursor position. */
+                bool use_get_cursor;
+                
+                /** Halo sets this to `true` if the cursor has moved since its last update. */
+                bool position_changed;
+            } trial;
+            
+            struct {
+                /** Lock to prevent recursion on cursor-related operations (speculation). */
+                bool lock;
+                
+                /** If `true`, Halo will use `GetCursor()` to calculate changes in cursor position. */
+                bool use_get_cursor;
+                
+                /** Halo sets this to `true` if the cursor has moved since its last update. */
+                bool position_changed;
+            } full;
+        };
 
         struct {
             std::int32_t x; ///< The horizontal coordinate of the cursor, in widget coordinates.
