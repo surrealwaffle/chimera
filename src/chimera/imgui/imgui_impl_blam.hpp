@@ -13,8 +13,7 @@ bool ImGui_ImplBlam_Init();
 /**
  * Destroys resources associated with the platform implementation.
  *
- * This function is safe to call if #ImGui_ImplBlam_Init() was not called
- * or it returned `false`.
+ * This function is safe to call, even if the platform implementation was not initialized.
  */
 void ImGui_ImplBlam_Shutdown();
 
@@ -28,7 +27,7 @@ void ImGui_ImplBlam_NewFrame();
 /**
  * Diverts input from Halo as necessary.
  *
- * This should be called just after `ImGui::EndFrame()`.
+ * This should be called after `ImGui::EndFrame()` and before the widgets get updated.
  */
 void ImGui_ImplBlam_CaptureInput();
 

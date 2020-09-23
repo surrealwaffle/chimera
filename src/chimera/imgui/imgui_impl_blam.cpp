@@ -25,7 +25,11 @@ extern "C" {
 }
 
 namespace /* (anonymous) */ {
-    // The old (unsubclassed) WindowProc callback.
+    // The implementation subclasses the main window for key/character messages.
+    // Mouse input does not appear to go through the WindowProc, so that data
+    // is taken directly from the widget event queues and input device buffers.
+    
+    /** The original (unsubclassed) WindowProc callback. */
     WNDPROC lpfnOldWndProc = NULL;
     
     /**
@@ -67,6 +71,7 @@ bool ImGui_ImplBlam_Init() {
         }
     }
     
+    // used to disable Halo's honkin' cursor
     static Hook draw_widget_cursor_hook;
     write_function_override(get_chimera().get_signature("widget_draw_cursor_sig").data(),
                             draw_widget_cursor_hook,
@@ -101,7 +106,6 @@ void ImGui_ImplBlam_NewFrame() {
     auto clear_mouse = [&io] {
         io.MousePos = ImVec2(-FLT_MAX, -FLT_MAX); // mouse unavailable
         std::fill(std::begin(io.MouseDown), std::end(io.MouseDown), false);
-        io.MouseWheel = 0.0f;
     };
     
     if (!is_imgui_active()) {
