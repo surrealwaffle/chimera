@@ -13,10 +13,13 @@
 #include "imgui_impl_blam.hpp"
 
 namespace /*(anonymous)*/ {
-    bool context_initialized    = false; 
-    bool platform_initialized   = false;
-    bool renderer_initialized   = false;
-    bool device_objects_created = false;
+    bool context_initialized     = false; 
+    bool platform_initialized    = false;
+    bool renderer_initialized    = false;
+    bool device_objects_created  = false;
+    
+    bool imgui_demo_window_open  = false;
+    bool implot_demo_window_open = false;
     
     /**
      * Checks if Dear ImGui is completely initialized.
@@ -77,6 +80,14 @@ namespace Chimera {
                        nullptr,
                        true);
     }
+    
+    void show_imgui_demo_window(bool show) {
+        imgui_demo_window_open = show;
+    }
+    
+    void show_implot_demo_window(bool show) {
+        implot_demo_window_open = show;
+    }
 }
 
 namespace {    
@@ -96,13 +107,11 @@ namespace {
         ImGui_ImplBlam_NewFrame();
         ImGui::NewFrame();
         
-        if (static bool show_demo_window = true; show_demo_window) {
-            ImGui::ShowDemoWindow(&show_demo_window);
-        }
+        if (imgui_demo_window_open)
+            ImGui::ShowDemoWindow(&imgui_demo_window_open);
         
-        if (static bool show_implot_demo_window = true; show_implot_demo_window) {
-            ImPlot::ShowDemoWindow(&show_implot_demo_window);
-        }
+        if (implot_demo_window_open)
+            ImPlot::ShowDemoWindow(&implot_demo_window_open);
         
         ImGui::EndFrame();
         ImGui_ImplBlam_CaptureInput();
