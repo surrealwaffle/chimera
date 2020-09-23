@@ -68,7 +68,7 @@ bool ImGui_ImplBlam_Init() {
     }
     
     static Hook draw_widget_cursor_hook;
-    write_function_override(get_chimera().get_signature("draw_widget_cursor_sig").data(),
+    write_function_override(get_chimera().get_signature("widget_draw_cursor_sig").data(),
                             draw_widget_cursor_hook,
                             reinterpret_cast<const void *>(&imgui_impl_blam_draw_widget_cursor),
                             &imgui_impl_blam_draw_widget_cursor_original);
@@ -174,6 +174,8 @@ void ImGui_ImplBlam_CaptureInput() {
     
     using Chimera::InputGlobals;
     using Chimera::WidgetEvent;
+    
+    // Note: never remove `custom_activation` widget events.
     auto remove_widget_events_by_type = [] (WidgetEvent::EventType type) {
         using Chimera::WidgetEventGlobals;
         for (auto& queue : WidgetEventGlobals::get_widget_event_globals().queues) {

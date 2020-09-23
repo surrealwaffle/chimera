@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
+#ifndef CHIMERA_IMGUI_IMPL_BLAM_HPP
+#define CHIMERA_IMGUI_IMPL_BLAM_HPP
+
 /**
  * Initializes the platform implementation for Dear ImGui over Halo.
  *
@@ -28,3 +31,5 @@ void ImGui_ImplBlam_NewFrame();
  * This should be called just after `ImGui::EndFrame()`.
  */
 void ImGui_ImplBlam_CaptureInput();
+
+#endif

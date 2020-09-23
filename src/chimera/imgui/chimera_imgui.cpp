@@ -1,94 +1,163 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include "chimera_imgui.hpp"
-#include <d3d9.h>
 #include "../event/d3d9_reset.hpp"
 #include "../event/d3d9_end_scene.hpp"
 #include "../event/game_quit.hpp"
+#include "../signature/hook.hpp"
+#include "../signature/signature.hpp"
+#include "../chimera.hpp"
 #include "imgui.h"
+#include "implot.h"
 #include "imgui_impl_dx9.h"
+#include "imgui_impl_blam.hpp"
 
-namespace {
-    bool imgui_initialized = false;
-    bool imgui_renderer_initialized = false;
-    bool imgui_device_objects_created = false;
+namespace /*(anonymous)*/ {
+    bool context_initialized    = false; 
+    bool platform_initialized   = false;
+    bool renderer_initialized   = false;
+    bool device_objects_created = false;
     
+    /**
+     * Checks if Dear ImGui is completely initialized.
+     * @return `true` if and only if Dear ImGui is initialized.
+     */
+    bool ready();
+    
+    /**
+     * Initializes the rendering implementation and device objects, as needed.
+     * @return `ready()`
+     */
+    bool prepare_renderer_implementation(LPDIRECT3DDEVICE9 device);
+    
+    /**
+     * Destroys device objects associated with the rendering implementation and flags them for recreation on the next render frame.
+     */
     void imgui_reset_device(LPDIRECT3DDEVICE9 device, D3DPRESENT_PARAMETERS *present);
     
+    /**
+     * Performs an update on the Dear ImGui state.
+     */
+    void imgui_update();
+    
+    /**
+     * Renders the GUI to the device.
+     */
     void imgui_new_frame(LPDIRECT3DDEVICE9 device);
     
+    /**
+     * Destroys the ImGui context and renderer/platform implementation resources.
+     */
     void imgui_destroy();
-} // (anonymous)
+} // namespace (anonymous)
 
 namespace Chimera {   
     void initialize_imgui() {
-        if (imgui_initialized)
-            return;
+        if (!context_initialized) {
+            IMGUI_CHECKVERSION();
+            ImGui::CreateContext();
+            context_initialized = true;
+        }
         
-        IMGUI_CHECKVERSION();
-        ImGui::CreateContext();
+        if (!platform_initialized) {
+            platform_initialized = ImGui_ImplBlam_Init();
+            if (!platform_initialized)
+                return;
+        }
         
         add_d3d9_reset_event(imgui_reset_device);
         add_d3d9_end_scene_event(imgui_new_frame);
         add_game_quit_event(imgui_destroy);
         
-        imgui_initialized = true;
+        static Hook update_widgets_hook;
+        write_jmp_call(get_chimera().get_signature("update_widgets_sig").data(), 
+                       update_widgets_hook,
+                       reinterpret_cast<const void *>(&imgui_update),
+                       nullptr,
+                       true);
     }
 }
 
-namespace {
-    bool imgui_initialize_renderer(LPDIRECT3DDEVICE9 device) {
-        if (!imgui_initialized)
-            return false;
-        
-        if (!imgui_renderer_initialized)
-            imgui_renderer_initialized = ImGui_ImplDX9_Init(device);
-        
-        return imgui_renderer_initialized;
-    }
-    
-    bool imgui_create_device_objects() {
-        if (!imgui_initialized || !imgui_renderer_initialized)
-            return false;
-        
-        if (!imgui_device_objects_created)
-            imgui_device_objects_created = ImGui_ImplDX9_CreateDeviceObjects();
-        
-        return imgui_device_objects_created;
-    }
-    
-    void imgui_reset_device([[maybe_unused]] LPDIRECT3DDEVICE9 device, [[maybe_unused]] D3DPRESENT_PARAMETERS *present) {
-        if (!imgui_initialized)
+namespace {    
+    void imgui_reset_device(LPDIRECT3DDEVICE9, D3DPRESENT_PARAMETERS *) {
+        if (!renderer_initialized)
             return;
         
         ImGui_ImplDX9_InvalidateDeviceObjects();
-        imgui_device_objects_created = false;
+        device_objects_created = false;
     }
     
-    void imgui_new_frame(LPDIRECT3DDEVICE9 device) {
-        if (!imgui_initialized || !imgui_initialize_renderer(device) || !imgui_create_device_objects())
+    void imgui_update() {
+        if (!ready())
             return;
         
         ImGui_ImplDX9_NewFrame();
+        ImGui_ImplBlam_NewFrame();
         ImGui::NewFrame();
         
-        // do stuff here
+        if (static bool show_demo_window = true; show_demo_window) {
+            ImGui::ShowDemoWindow();
+        }
+        
+        if (static bool show_implot_demo_window = true; show_implot_demo_window) {
+            ImPlot::ShowDemoWindow();
+        }
         
         ImGui::EndFrame();
+        ImGui_ImplBlam_CaptureInput();
+    }
+    
+    void imgui_new_frame(LPDIRECT3DDEVICE9 device) {
+        if (!ready()) {
+            // no data for this frame, so dont bother even if renderer is prepared
+            prepare_renderer_implementation(device);
+            return;
+        }
         
         ImGui::Render();
         ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
     }
     
     void imgui_destroy() {
-        if (imgui_renderer_initialized) {
+        if (renderer_initialized) {
             ImGui_ImplDX9_Shutdown();
-            imgui_renderer_initialized = false;
+            renderer_initialized = false;
+            device_objects_created = false;
         }
         
-        if (imgui_initialized) {
-            ImGui::DestroyContext();
-            imgui_initialized = false;
+        if (platform_initialized) {
+            ImGui_ImplBlam_Shutdown();
+            platform_initialized = false;
         }
+        
+        if (context_initialized) {
+            ImGui::DestroyContext();
+            context_initialized = false;
+        }
+    }
+    
+    bool ready() {
+        return context_initialized
+            && platform_initialized
+            && renderer_initialized
+            && device_objects_created;
+    }
+    
+    bool prepare_renderer_implementation(LPDIRECT3DDEVICE9 device) {
+        if (!context_initialized)
+            return ready();
+        
+        if (!renderer_initialized) {
+            ImGui_ImplDX9_Init(device);
+            renderer_initialized = true;
+            device_objects_created = true;
+        }
+        
+        if (renderer_initialized && !device_objects_created) {
+            ImGui_ImplDX9_CreateDeviceObjects();
+            device_objects_created = true;
+        }
+        
+        return ready();
     }
 }
