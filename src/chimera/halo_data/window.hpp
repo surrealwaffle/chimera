@@ -6,13 +6,17 @@
 #include <windows.h>
 
 namespace Chimera {
+    /**
+     * Basic application window information.
+     */
     struct WindowGlobals {
-        HINSTANCE hInstance;
-        HWND      hWnd;
-        HWND      hWndUnknown;
-        int       nCmdShow;
-        WNDPROC   lpfnWndProc; // registered as part of the window class
-        HICON     hIconSm;
+        HINSTANCE hInstance;   ///< A handle to the application instance.
+        HWND      hWnd;        ///< Halo's main window handle.
+        HWND      hWndUnknown; // possibly used for error dialog menus?
+        int       nCmdShow;    ///< `wShow` from `GetStartupInfo()`, if the `STARTF_USESHOWWINDOW` flag is set.
+                               ///< Otherwise, takes on the value `SW_SHOWDEFAULT`.
+        WNDPROC   lpfnWndProc; ///< The WindowProc callback function as registered with the window class.
+        HICON     hIconSm;     ///< Halo's small icon resource.
         
         /**
          * Get the window globals.
