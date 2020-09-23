@@ -3,8 +3,8 @@
 #include <windows.h>
 #include <d3d9.h>
 #include "imgui.h"
-#include <algorithm> // std::fill
-#include <iterator>  // std::size
+#include <algorithm> // std::fill, std::remove_if
+#include <iterator>  // std::begin, std::end, std::size
 #include <limits>    // std::numeric_limits
 #include "../signature/signature.hpp"
 #include "../signature/hook.hpp"

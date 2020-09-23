@@ -34,6 +34,7 @@ set(COMMAND_FILES
     ${COMMAND_DIR}/client/debug/load_ui_map.cpp
     ${COMMAND_DIR}/client/debug/send_chat_message.cpp
     ${COMMAND_DIR}/client/debug/show_coordinates.cpp
+    ${COMMAND_DIR}/client/debug/show_imgui_demo.cpp
     ${COMMAND_DIR}/client/debug/show_fps.cpp
     ${COMMAND_DIR}/client/enhancement/block_all_bullshit.cpp
     ${COMMAND_DIR}/client/enhancement/block_buffering.cpp
