@@ -13,15 +13,9 @@ namespace Chimera {
     }
     
     WidgetCursorGlobals &WidgetCursorGlobals::get_widget_cursor_globals() {
-        static WidgetCursorGlobals *widget_cursor_globals = nullptr;
-        
-        if (widget_cursor_globals == nullptr) {
-            if (get_chimera().feature_present("client_demo")) {
-                widget_cursor_globals = *reinterpret_cast<WidgetCursorGlobals **>(get_chimera().get_signature("widget_cursor_globals_trial_sig").data() + 1);
-            } else {
-                widget_cursor_globals = *reinterpret_cast<WidgetCursorGlobals **>(get_chimera().get_signature("widget_cursor_globals_sig").data() + 4);
-            }
-        }
+        static WidgetCursorGlobals *widget_cursor_globals = get_chimera().feature_present("client_demo")
+            ? *reinterpret_cast<WidgetCursorGlobals **>(get_chimera().get_signature("widget_cursor_globals_trial_sig").data() + 1)
+            : *reinterpret_cast<WidgetCursorGlobals **>(get_chimera().get_signature("widget_cursor_globals_sig").data() + 4);
         
         return *widget_cursor_globals;
     }

@@ -71,7 +71,7 @@ bool ImGui_ImplBlam_Init() {
         }
     }
     
-    // used to disable Halo's honkin' cursor
+    // used to disable Halo's honkin' cursor when ImGui wants the mouse
     static Hook draw_widget_cursor_hook;
     write_function_override(get_chimera().get_signature("widget_draw_cursor_sig").data(),
                             draw_widget_cursor_hook,

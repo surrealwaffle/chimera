@@ -9,6 +9,9 @@
 #include "pad.hpp"
 
 namespace Chimera {
+    /**
+     * A WidgetEvent that indicates an analog stick has a non-zero axis value.
+     */ 
     struct AnalogStickWidgetEvent {
         using Count = std::int16_t;
         static constexpr Count max_count = std::numeric_limits<Count>::max();
@@ -45,6 +48,16 @@ namespace Chimera {
         bool is_fully_right() const { return horizontal == max_count; }
     };
     
+    /**
+     * A WidgetEvent that represents a pressed button on the gamepad.
+     *
+     * The PC version uses these events even for keypresses.
+     * If inspecting the queues, assume that menu navigation is taking place on a controller.
+     * For instance, the arrow keys will emit `button_dpad_*` events.
+     *
+     * Technically speaking, these events can trigger any widget event handler.
+     * However, Halo only ever fills the gamepad button events.
+     */
     struct GamepadButtonWidgetEvent {
         using Duration = std::uint8_t;
 
@@ -72,6 +85,9 @@ namespace Chimera {
                            ///< This must be `1`, otherwise the event gets dropped during processing.
     };
     
+    /**
+     * A WidgetEvent that represents a pressed or held button on the mouse.
+     */
     struct MouseButtonWidgetEvent {
         using Duration = std::uint8_t;
         static constexpr Duration duration_max = std::numeric_limits<Duration>::max();
@@ -87,6 +103,12 @@ namespace Chimera {
         Duration duration; ///< The duration #button was held for, up to #duration_max.
     };
     
+    /** 
+     * Describes an event for the widget system to process.
+     *
+     * The top-level widget receives these events and calls upon its handlers to process the events.
+     * Depending on how the widget is set up, the events may be sent down to child widgets.
+     */
     struct WidgetEvent {
         enum EventType : std::int16_t {
             type_none = 0,
@@ -98,7 +120,7 @@ namespace Chimera {
         };
 
         union Event {
-            std::int32_t             lparam;  ///< For compatibility with how Halo.
+            std::int32_t             lparam;  ///< For compatibility with Halo.
             AnalogStickWidgetEvent   analog;  ///< Parameters for an analog stick event.
             GamepadButtonWidgetEvent gamepad; ///< Parameters for a gamepad button event.
             MouseButtonWidgetEvent   mouse;   ///< Parameters for a mouse button event.
@@ -141,9 +163,9 @@ namespace Chimera {
     static_assert(sizeof(WidgetEventGlobals) == 0x10C);
     
     /**
-     * Mostly values pertaining to the widget cursor's positioning and movement.
+     * The widget cursor's positioning and movement.
      *
-     * Widgets in vanilla Halo work in a 640 by 480 grid.
+     * Widgets and the widget cursor in vanilla Halo work in a 640 by 480 grid.
      * Chimera upgrades this with the widescreen fix.
      * #get_client_normalized_position() and #get_framebuffer_position() are provided, to ease translation.
      */
@@ -206,7 +228,11 @@ namespace Chimera {
     };
     static_assert(sizeof(WidgetCursorGlobals) == 0x0C);
     
+    /**
+     * Describes the general state of widgets and widget display.
+     */ 
     struct WidgetGlobals {
+        /** An error that is in queue. */
         struct EnqueuedErrorDescriptor {
             std::int16_t error_string; ///< Index of the error in the error strings tag.
             std::int16_t local_player; ///< Index of the local player the error is for.
@@ -215,6 +241,7 @@ namespace Chimera {
         };
         static_assert(sizeof(EnqueuedErrorDescriptor) == 0x06);
 
+        /** An error that is waiting for the current cinematic to end before being displayed. */
         struct DeferredErrorDescriptor {
             std::int16_t error_string; ///< Index of the error in the error strings tag.
             bool         display_modal;
@@ -223,7 +250,7 @@ namespace Chimera {
         static_assert(sizeof(DeferredErrorDescriptor) == 0x04);
 
         void *top_widget_instance[1]; ///< The top-level widget instance for each local player.
-        PAD(0x4); // probably another widget instance array of size 1
+        PAD(0x4); // probably another widget instance array of length 1
 
         std::int32_t current_time; // in milliseconds
         std::int32_t popup_display_time; // ticks remaining for popup (i think)
