@@ -97,11 +97,11 @@ namespace {
         ImGui::NewFrame();
         
         if (static bool show_demo_window = true; show_demo_window) {
-            ImGui::ShowDemoWindow();
+            ImGui::ShowDemoWindow(&show_demo_window);
         }
         
         if (static bool show_implot_demo_window = true; show_implot_demo_window) {
-            ImPlot::ShowDemoWindow();
+            ImPlot::ShowDemoWindow(&show_implot_demo_window);
         }
         
         ImGui::EndFrame();
