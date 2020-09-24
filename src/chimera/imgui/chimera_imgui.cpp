@@ -3,7 +3,7 @@
 #include "chimera_imgui.hpp"
 #include "../event/d3d9_reset.hpp"
 #include "../event/d3d9_end_scene.hpp"
-#include "../event/game_quit.hpp"
+#include "../event/game_closing.hpp"
 #include "../signature/hook.hpp"
 #include "../signature/signature.hpp"
 #include "../chimera.hpp"
@@ -71,7 +71,7 @@ namespace Chimera {
         
         add_d3d9_reset_event(imgui_reset_device);
         add_d3d9_end_scene_event(imgui_new_frame);
-        add_game_quit_event(imgui_destroy);
+        add_game_closing_event(imgui_destroy);
         
         static Hook update_widgets_hook;
         write_jmp_call(get_chimera().get_signature("update_widgets_sig").data(), 
