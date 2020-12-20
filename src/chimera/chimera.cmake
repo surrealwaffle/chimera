@@ -166,6 +166,7 @@ add_library(chimera STATIC
     src/chimera/localization/localization.cpp
     src/chimera/lua/instance.cpp
     src/chimera/lua/io.cpp
+    src/chimera/lua/imgui.cpp
     src/chimera/lua/lua.cpp
     src/chimera/map_loading/map_loading.cpp
     src/chimera/map_loading/map_loading.S
