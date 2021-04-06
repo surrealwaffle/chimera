@@ -62,21 +62,21 @@ namespace {
 // If this is unsatisfactory, it can always be swapped back to the ## extension,
 // which should work on older versions of GCC as well as clang pre-C++2a.
 
-#define IMGUI_ENTRY_NAME(name) "ImGui" #name
+#define ENTRY_NAME(name) "ImGui" #name
 
-#define ENTRY_CUSTOM(name, ...) {IMGUI_ENTRY_NAME(name), +[] (lua_State *L) -> int { return invoke_native(L, __VA_ARGS__); }}
+#define ENTRY_CUSTOM(name, ...) {ENTRY_NAME(name), +[] (lua_State *L) -> int { return invoke_native(L, __VA_ARGS__); }}
 
 // Entry point with no overloads
 #define ENTRY_STANDARD(name, ...) \
-    {IMGUI_ENTRY_NAME(name), lua_wrapper::wrap_function<&ImGui::name __VA_OPT__(,) __VA_ARGS__>}
+    {ENTRY_NAME(name), lua_wrapper::wrap_function<&ImGui::name __VA_OPT__(,) __VA_ARGS__>}
 
 // Entry point with no overloads, renaming
 #define ENTRY_RENAME(rename, name, ...) \
-    {IMGUI_ENTRY_NAME(rename), lua_wrapper::wrap_function<&ImGui::name __VA_OPT__(,) __VA_ARGS__>}
+    {ENTRY_NAME(rename), lua_wrapper::wrap_function<&ImGui::name __VA_OPT__(,) __VA_ARGS__>}
 
 // Entry point with overloads, renaming
 #define ENTRY_OVERLOAD(rename, name, type, ...) \
-    {IMGUI_ENTRY_NAME(rename), lua_wrapper::wrap_function<static_cast<type>(&ImGui::name) __VA_OPT__(,) __VA_ARGS__>}
+    {ENTRY_NAME(rename), lua_wrapper::wrap_function<static_cast<type>(&ImGui::name) __VA_OPT__(,) __VA_ARGS__>}
     
     using lua_wrapper::embedded_return;
     using lua_wrapper::invoke_native
@@ -422,7 +422,7 @@ namespace {
             void(*)(const char* str_id)),
         ENTRY_STANDARD(TreePop),
         ENTRY_STANDARD(GetTreeNodeToLabelSpacing),
-        {IMGUI_ENTRY_NAME(CollapsingHeader), +[] (lua_State *L) -> int
+        {ENTRY_NAME(CollapsingHeader), +[] (lua_State *L) -> int
         {
             const bool has_three_args = lua_isnone(L, 3);
             
@@ -710,12 +710,396 @@ namespace {
 #undef ENTRY_OVERLOAD
 #undef ENTRY_RENAME
 #undef ENTRY_STANDARD
+#undef ENTRY_NAME
+
+#define ENUM_ENTRY_VALUE(family, name) family ## _ ## name
+#define ENUM_ENTRY_NAME(family, name) #family "_" #name
+#define ENUM_ENTRY(family, name) {ENUM_ENTRY_NAME(family, name), ENUM_ENTRY_VALUE(family, name)}
+
+    constexpr std::pair<const char*, int> enum_constants[] {
+        ENUM_ENTRY(ImGuiCol, Text),
+        ENUM_ENTRY(ImGuiCol, TextDisabled),
+        ENUM_ENTRY(ImGuiCol, WindowBg),
+        ENUM_ENTRY(ImGuiCol, ChildBg),
+        ENUM_ENTRY(ImGuiCol, PopupBg),
+        ENUM_ENTRY(ImGuiCol, Border),
+        ENUM_ENTRY(ImGuiCol, BorderShadow),
+        ENUM_ENTRY(ImGuiCol, FrameBg),
+        ENUM_ENTRY(ImGuiCol, FrameBgHovered),
+        ENUM_ENTRY(ImGuiCol, FrameBgActive),
+        ENUM_ENTRY(ImGuiCol, TitleBg),
+        ENUM_ENTRY(ImGuiCol, TitleBgActive),
+        ENUM_ENTRY(ImGuiCol, TitleBgCollapsed),
+        ENUM_ENTRY(ImGuiCol, MenuBarBg),
+        ENUM_ENTRY(ImGuiCol, ScrollbarBg),
+        ENUM_ENTRY(ImGuiCol, ScrollbarGrab),
+        ENUM_ENTRY(ImGuiCol, ScrollbarGrabHovered),
+        ENUM_ENTRY(ImGuiCol, ScrollbarGrabActive),
+        ENUM_ENTRY(ImGuiCol, CheckMark),
+        ENUM_ENTRY(ImGuiCol, SliderGrab),
+        ENUM_ENTRY(ImGuiCol, SliderGrabActive),
+        ENUM_ENTRY(ImGuiCol, Button),
+        ENUM_ENTRY(ImGuiCol, ButtonHovered),
+        ENUM_ENTRY(ImGuiCol, ButtonActive),
+        ENUM_ENTRY(ImGuiCol, Header),
+        ENUM_ENTRY(ImGuiCol, HeaderHovered),
+        ENUM_ENTRY(ImGuiCol, HeaderActive),
+        ENUM_ENTRY(ImGuiCol, Separator),
+        ENUM_ENTRY(ImGuiCol, SeparatorHovered),
+        ENUM_ENTRY(ImGuiCol, SeparatorActive),
+        ENUM_ENTRY(ImGuiCol, ResizeGrip),
+        ENUM_ENTRY(ImGuiCol, ResizeGripHovered),
+        ENUM_ENTRY(ImGuiCol, ResizeGripActive),
+        ENUM_ENTRY(ImGuiCol, Tab),
+        ENUM_ENTRY(ImGuiCol, TabHovered),
+        ENUM_ENTRY(ImGuiCol, TabActive),
+        ENUM_ENTRY(ImGuiCol, TabUnfocused),
+        ENUM_ENTRY(ImGuiCol, TabUnfocusedActive),
+        ENUM_ENTRY(ImGuiCol, PlotLines),
+        ENUM_ENTRY(ImGuiCol, PlotLinesHovered),
+        ENUM_ENTRY(ImGuiCol, PlotHistogram),
+        ENUM_ENTRY(ImGuiCol, PlotHistogramHovered),
+        ENUM_ENTRY(ImGuiCol, TextSelectedBg),
+        ENUM_ENTRY(ImGuiCol, DragDropTarget),
+        ENUM_ENTRY(ImGuiCol, NavHighlight),
+        ENUM_ENTRY(ImGuiCol, NavWindowingHighlight),
+        ENUM_ENTRY(ImGuiCol, NavWindowingDimBg),
+        ENUM_ENTRY(ImGuiCol, ModalWindowDimBg),
+        
+        ENUM_ENTRY(ImGuiCond, None),
+        ENUM_ENTRY(ImGuiCond, Always),
+        ENUM_ENTRY(ImGuiCond, Once),
+        ENUM_ENTRY(ImGuiCond, FirstUseEver),
+        ENUM_ENTRY(ImGuiCond, Appearing),
+        
+        ENUM_ENTRY(ImGuiDataType, S8),
+        ENUM_ENTRY(ImGuiDataType, U8),
+        ENUM_ENTRY(ImGuiDataType, S16),
+        ENUM_ENTRY(ImGuiDataType, U16),
+        ENUM_ENTRY(ImGuiDataType, S32),
+        ENUM_ENTRY(ImGuiDataType, U32),
+        ENUM_ENTRY(ImGuiDataType, S64),
+        ENUM_ENTRY(ImGuiDataType, U64),
+        ENUM_ENTRY(ImGuiDataType, Float),
+        ENUM_ENTRY(ImGuiDataType, Double),
+        
+        ENUM_ENTRY(ImGuiDir, None),
+        ENUM_ENTRY(ImGuiDir, Left),
+        ENUM_ENTRY(ImGuiDir, Right),
+        ENUM_ENTRY(ImGuiDir, Up),
+        ENUM_ENTRY(ImGuiDir, Down),
+        
+        ENUM_ENTRY(ImGuiKey, Tab),
+        ENUM_ENTRY(ImGuiKey, LeftArrow),
+        ENUM_ENTRY(ImGuiKey, RightArrow),
+        ENUM_ENTRY(ImGuiKey, UpArrow),
+        ENUM_ENTRY(ImGuiKey, DownArrow),
+        ENUM_ENTRY(ImGuiKey, PageUp),
+        ENUM_ENTRY(ImGuiKey, PageDown),
+        ENUM_ENTRY(ImGuiKey, Home),
+        ENUM_ENTRY(ImGuiKey, End),
+        ENUM_ENTRY(ImGuiKey, Insert),
+        ENUM_ENTRY(ImGuiKey, Delete),
+        ENUM_ENTRY(ImGuiKey, Backspace),
+        ENUM_ENTRY(ImGuiKey, Space),
+        ENUM_ENTRY(ImGuiKey, Enter),
+        ENUM_ENTRY(ImGuiKey, Escape),
+        ENUM_ENTRY(ImGuiKey, KeyPadEnter),
+        ENUM_ENTRY(ImGuiKey, A),
+        ENUM_ENTRY(ImGuiKey, C),
+        ENUM_ENTRY(ImGuiKey, V),
+        ENUM_ENTRY(ImGuiKey, X),
+        ENUM_ENTRY(ImGuiKey, Y),
+        ENUM_ENTRY(ImGuiKey, Z),
+        
+        ENUM_ENTRY(ImGuiNavInput, Activate),
+        ENUM_ENTRY(ImGuiNavInput, Cancel),
+        ENUM_ENTRY(ImGuiNavInput, Input),
+        ENUM_ENTRY(ImGuiNavInput, Menu),
+        ENUM_ENTRY(ImGuiNavInput, DpadLeft),
+        ENUM_ENTRY(ImGuiNavInput, DpadRight),
+        ENUM_ENTRY(ImGuiNavInput, DpadUp),
+        ENUM_ENTRY(ImGuiNavInput, DpadDown),
+        ENUM_ENTRY(ImGuiNavInput, LStickLeft),
+        ENUM_ENTRY(ImGuiNavInput, LStickRight),
+        ENUM_ENTRY(ImGuiNavInput, LStickUp),
+        ENUM_ENTRY(ImGuiNavInput, LStickDown),
+        ENUM_ENTRY(ImGuiNavInput, FocusPrev),
+        ENUM_ENTRY(ImGuiNavInput, FocusNext),
+        ENUM_ENTRY(ImGuiNavInput, TweakSlow),
+        ENUM_ENTRY(ImGuiNavInput, TweakFast),
+        
+        ENUM_ENTRY(ImGuiMouseButton, Left),
+        ENUM_ENTRY(ImGuiMouseButton, Right),
+        ENUM_ENTRY(ImGuiMouseButton, Middle),
+        
+        ENUM_ENTRY(ImGuiMouseCursor, None),
+        ENUM_ENTRY(ImGuiMouseCursor, Arrow),
+        ENUM_ENTRY(ImGuiMouseCursor, TextInput),
+        ENUM_ENTRY(ImGuiMouseCursor, ResizeAll),
+        ENUM_ENTRY(ImGuiMouseCursor, ResizeNS),
+        ENUM_ENTRY(ImGuiMouseCursor, ResizeEW),
+        ENUM_ENTRY(ImGuiMouseCursor, ResizeNESW),
+        ENUM_ENTRY(ImGuiMouseCursor, ResizeNWSE),
+        ENUM_ENTRY(ImGuiMouseCursor, Hand),
+        ENUM_ENTRY(ImGuiMouseCursor, NotAllowed),
+        
+        ENUM_ENTRY(ImGuiStyleVar, Alpha),
+        ENUM_ENTRY(ImGuiStyleVar, WindowPadding),
+        ENUM_ENTRY(ImGuiStyleVar, WindowRounding),
+        ENUM_ENTRY(ImGuiStyleVar, WindowBorderSize),
+        ENUM_ENTRY(ImGuiStyleVar, WindowMinSize),
+        ENUM_ENTRY(ImGuiStyleVar, WindowTitleAlign),
+        ENUM_ENTRY(ImGuiStyleVar, ChildRounding),
+        ENUM_ENTRY(ImGuiStyleVar, ChildBorderSize),
+        ENUM_ENTRY(ImGuiStyleVar, PopupRounding),
+        ENUM_ENTRY(ImGuiStyleVar, PopupBorderSize),
+        ENUM_ENTRY(ImGuiStyleVar, FramePadding),
+        ENUM_ENTRY(ImGuiStyleVar, FrameRounding),
+        ENUM_ENTRY(ImGuiStyleVar, FrameBorderSize),
+        ENUM_ENTRY(ImGuiStyleVar, ItemSpacing),
+        ENUM_ENTRY(ImGuiStyleVar, ItemInnerSpacing),
+        ENUM_ENTRY(ImGuiStyleVar, IndentSpacing),
+        ENUM_ENTRY(ImGuiStyleVar, ScrollbarSize),
+        ENUM_ENTRY(ImGuiStyleVar, ScrollbarRounding),
+        ENUM_ENTRY(ImGuiStyleVar, GrabMinSize),
+        ENUM_ENTRY(ImGuiStyleVar, GrabRounding),
+        ENUM_ENTRY(ImGuiStyleVar, TabRounding),
+        ENUM_ENTRY(ImGuiStyleVar, ButtonTextAlign),
+        ENUM_ENTRY(ImGuiStyleVar, SelectableTextAlign),
+        
+        ENUM_ENTRY(ImDrawCornerFlags, None),
+        ENUM_ENTRY(ImDrawCornerFlags, TopLeft),
+        ENUM_ENTRY(ImDrawCornerFlags, TopRight),
+        ENUM_ENTRY(ImDrawCornerFlags, BotLeft),
+        ENUM_ENTRY(ImDrawCornerFlags, BotRight),
+        ENUM_ENTRY(ImDrawCornerFlags, Top),
+        ENUM_ENTRY(ImDrawCornerFlags, Bot),
+        ENUM_ENTRY(ImDrawCornerFlags, Left),
+        ENUM_ENTRY(ImDrawCornerFlags, Right),
+        ENUM_ENTRY(ImDrawCornerFlags, All),
+        
+        ENUM_ENTRY(ImDrawListFlags, None),
+        ENUM_ENTRY(ImDrawListFlags, AntiAliasedLines),
+        ENUM_ENTRY(ImDrawListFlags, AntiAliasedLinesUseTex),
+        ENUM_ENTRY(ImDrawListFlags, AntiAliasedFill),
+        ENUM_ENTRY(ImDrawListFlags, AllowVtxOffset),
+        
+        ENUM_ENTRY(ImFontAtlasFlags, None),
+        ENUM_ENTRY(ImFontAtlasFlags, NoPowerOfTwoHeight),
+        ENUM_ENTRY(ImFontAtlasFlags, NoMouseCursors),
+        ENUM_ENTRY(ImFontAtlasFlags, NoBakedLines),
+        
+        ENUM_ENTRY(ImGuiBackendFlags, None),
+        ENUM_ENTRY(ImGuiBackendFlags, HasGamepad),
+        ENUM_ENTRY(ImGuiBackendFlags, HasMouseCursors),
+        ENUM_ENTRY(ImGuiBackendFlags, HasSetMousePos),
+        ENUM_ENTRY(ImGuiBackendFlags, RendererHasVtxOffset),
+        
+        ENUM_ENTRY(ImGuiButtonFlags, None),
+        ENUM_ENTRY(ImGuiButtonFlags, MouseButtonLeft),
+        ENUM_ENTRY(ImGuiButtonFlags, MouseButtonRight),
+        ENUM_ENTRY(ImGuiButtonFlags, MouseButtonMiddle),
+        
+        ENUM_ENTRY(ImGuiColorEditFlags, None),
+        ENUM_ENTRY(ImGuiColorEditFlags, NoAlpha),
+        ENUM_ENTRY(ImGuiColorEditFlags, NoPicker),
+        ENUM_ENTRY(ImGuiColorEditFlags, NoOptions),
+        ENUM_ENTRY(ImGuiColorEditFlags, NoSmallPreview),
+        ENUM_ENTRY(ImGuiColorEditFlags, NoInputs),
+        ENUM_ENTRY(ImGuiColorEditFlags, NoTooltip),
+        ENUM_ENTRY(ImGuiColorEditFlags, NoLabel),
+        ENUM_ENTRY(ImGuiColorEditFlags, NoSidePreview),
+        ENUM_ENTRY(ImGuiColorEditFlags, NoDragDrop),
+        ENUM_ENTRY(ImGuiColorEditFlags, NoBorder),
+        ENUM_ENTRY(ImGuiColorEditFlags, AlphaBar),
+        ENUM_ENTRY(ImGuiColorEditFlags, AlphaPreview),
+        ENUM_ENTRY(ImGuiColorEditFlags, AlphaPreviewHalf),
+        ENUM_ENTRY(ImGuiColorEditFlags, HDR),
+        ENUM_ENTRY(ImGuiColorEditFlags, DisplayRGB),
+        ENUM_ENTRY(ImGuiColorEditFlags, DisplayHSV),
+        ENUM_ENTRY(ImGuiColorEditFlags, DisplayHex),
+        ENUM_ENTRY(ImGuiColorEditFlags, Uint8),
+        ENUM_ENTRY(ImGuiColorEditFlags, Float),
+        ENUM_ENTRY(ImGuiColorEditFlags, PickerHueBar),
+        ENUM_ENTRY(ImGuiColorEditFlags, PickerHueWheel),
+        ENUM_ENTRY(ImGuiColorEditFlags, InputRGB),
+        ENUM_ENTRY(ImGuiColorEditFlags, InputHSV),
+        ENUM_ENTRY(ImGuiColorEditFlags, _OptionsDefault),
+        
+        ENUM_ENTRY(ImGuiConfigFlags, None),
+        ENUM_ENTRY(ImGuiConfigFlags, NavEnableKeyboard),
+        ENUM_ENTRY(ImGuiConfigFlags, NavEnableGamepad),
+        ENUM_ENTRY(ImGuiConfigFlags, NavEnableSetMousePos),
+        ENUM_ENTRY(ImGuiConfigFlags, NavNoCaptureKeyboard),
+        ENUM_ENTRY(ImGuiConfigFlags, NoMouse),
+        ENUM_ENTRY(ImGuiConfigFlags, NoMouseCursorChange),
+        ENUM_ENTRY(ImGuiConfigFlags, IsSRGB),
+        ENUM_ENTRY(ImGuiConfigFlags, IsTouchScreen),
+        
+        ENUM_ENTRY(ImGuiComboFlags, None),
+        ENUM_ENTRY(ImGuiComboFlags, PopupAlignLeft),
+        ENUM_ENTRY(ImGuiComboFlags, HeightSmall),
+        ENUM_ENTRY(ImGuiComboFlags, HeightRegular),
+        ENUM_ENTRY(ImGuiComboFlags, HeightLarge),
+        ENUM_ENTRY(ImGuiComboFlags, HeightLargest),
+        ENUM_ENTRY(ImGuiComboFlags, NoArrowButton),
+        ENUM_ENTRY(ImGuiComboFlags, NoPreview),
+        ENUM_ENTRY(ImGuiComboFlags, HeightMask),
+        
+        ENUM_ENTRY(ImGuiDragDropFlags, None),
+        ENUM_ENTRY(ImGuiDragDropFlags, SourceNoPreviewTooltip),
+        ENUM_ENTRY(ImGuiDragDropFlags, SourceNoDisableHover),
+        ENUM_ENTRY(ImGuiDragDropFlags, SourceNoHoldToOpenOthers),
+        ENUM_ENTRY(ImGuiDragDropFlags, SourceAllowNullID),
+        ENUM_ENTRY(ImGuiDragDropFlags, SourceExtern),
+        ENUM_ENTRY(ImGuiDragDropFlags, SourceAutoExpirePayload),
+        ENUM_ENTRY(ImGuiDragDropFlags, AcceptBeforeDelivery),
+        ENUM_ENTRY(ImGuiDragDropFlags, AcceptNoDrawDefaultRect),
+        ENUM_ENTRY(ImGuiDragDropFlags, AcceptNoPreviewTooltip),
+        ENUM_ENTRY(ImGuiDragDropFlags, AcceptPeekOnly),
+        
+        ENUM_ENTRY(ImGuiFocusedFlags, None),
+        ENUM_ENTRY(ImGuiFocusedFlags, ChildWindows),
+        ENUM_ENTRY(ImGuiFocusedFlags, RootWindow),
+        ENUM_ENTRY(ImGuiFocusedFlags, AnyWindow),
+        ENUM_ENTRY(ImGuiFocusedFlags, RootAndChildWindows),
+        
+        ENUM_ENTRY(ImGuiHoveredFlags, None),
+        ENUM_ENTRY(ImGuiHoveredFlags, ChildWindows),
+        ENUM_ENTRY(ImGuiHoveredFlags, RootWindow),
+        ENUM_ENTRY(ImGuiHoveredFlags, AnyWindow),
+        ENUM_ENTRY(ImGuiHoveredFlags, AllowWhenBlockedByPopup),
+        // ENUM_ENTRY(ImGuiHoveredFlags, AllowWhenBlockByModal), // Unavailable in current version
+        ENUM_ENTRY(ImGuiHoveredFlags, AllowWhenBlockedByActiveItem),
+        ENUM_ENTRY(ImGuiHoveredFlags, AllowWhenOverlapped),
+        ENUM_ENTRY(ImGuiHoveredFlags, AllowWhenDisabled),
+        ENUM_ENTRY(ImGuiHoveredFlags, RectOnly),
+        ENUM_ENTRY(ImGuiHoveredFlags, RootAndChildWindows),
+
+        ENUM_ENTRY(ImGuiInputTextFlags, None),
+        ENUM_ENTRY(ImGuiInputTextFlags, CharsDecimal),
+        ENUM_ENTRY(ImGuiInputTextFlags, CharsHexadecimal),
+        ENUM_ENTRY(ImGuiInputTextFlags, CharsUppercase),
+        ENUM_ENTRY(ImGuiInputTextFlags, CharsNoBlank),
+        ENUM_ENTRY(ImGuiInputTextFlags, AutoSelectAll),
+        ENUM_ENTRY(ImGuiInputTextFlags, EnterReturnsTrue),
+        ENUM_ENTRY(ImGuiInputTextFlags, CallbackCompletion),
+        ENUM_ENTRY(ImGuiInputTextFlags, CallbackHistory),
+        ENUM_ENTRY(ImGuiInputTextFlags, CallbackAlways),
+        ENUM_ENTRY(ImGuiInputTextFlags, CallbackCharFilter),
+        ENUM_ENTRY(ImGuiInputTextFlags, AllowTabInput),
+        ENUM_ENTRY(ImGuiInputTextFlags, CtrlEnterForNewLine),
+        ENUM_ENTRY(ImGuiInputTextFlags, NoHorizontalScroll),
+        ENUM_ENTRY(ImGuiInputTextFlags, AlwaysInsertMode),
+        ENUM_ENTRY(ImGuiInputTextFlags, ReadOnly),
+        ENUM_ENTRY(ImGuiInputTextFlags, Password),
+        ENUM_ENTRY(ImGuiInputTextFlags, NoUndoRedo),
+        ENUM_ENTRY(ImGuiInputTextFlags, CharsScientific),
+        ENUM_ENTRY(ImGuiInputTextFlags, CallbackResize),
+        
+        ENUM_ENTRY(ImGuiKeyModFlags, None),
+        ENUM_ENTRY(ImGuiKeyModFlags, Ctrl),
+        ENUM_ENTRY(ImGuiKeyModFlags, Shift),
+        ENUM_ENTRY(ImGuiKeyModFlags, Alt),
+        ENUM_ENTRY(ImGuiKeyModFlags, Super),
+        
+        ENUM_ENTRY(ImGuiPopupFlags, None),
+        ENUM_ENTRY(ImGuiPopupFlags, MouseButtonLeft),
+        ENUM_ENTRY(ImGuiPopupFlags, MouseButtonRight),
+        ENUM_ENTRY(ImGuiPopupFlags, MouseButtonMiddle),
+        ENUM_ENTRY(ImGuiPopupFlags, MouseButtonMask),
+        ENUM_ENTRY(ImGuiPopupFlags, MouseButtonDefault),
+        ENUM_ENTRY(ImGuiPopupFlags, NoOpenOverExistingPopup),
+        ENUM_ENTRY(ImGuiPopupFlags, NoOpenOverItems),
+        ENUM_ENTRY(ImGuiPopupFlags, AnyPopupId),
+        ENUM_ENTRY(ImGuiPopupFlags, AnyPopupLevel),
+        ENUM_ENTRY(ImGuiPopupFlags, AnyPopup),
+        
+        ENUM_ENTRY(ImGuiSelectableFlags, None),
+        ENUM_ENTRY(ImGuiSelectableFlags, DontClosePopups),
+        ENUM_ENTRY(ImGuiSelectableFlags, SpanAllColumns),
+        ENUM_ENTRY(ImGuiSelectableFlags, AllowDoubleClick),
+        ENUM_ENTRY(ImGuiSelectableFlags, Disabled),
+        ENUM_ENTRY(ImGuiSelectableFlags, AllowItemOverlap),
+        
+        ENUM_ENTRY(ImGuiTabBarFlags, None),
+        ENUM_ENTRY(ImGuiTabBarFlags, Reorderable),
+        ENUM_ENTRY(ImGuiTabBarFlags, AutoSelectNewTabs),
+        ENUM_ENTRY(ImGuiTabBarFlags, TabListPopupButton),
+        ENUM_ENTRY(ImGuiTabBarFlags, NoCloseWithMiddleMouseButton),
+        ENUM_ENTRY(ImGuiTabBarFlags, NoTabListScrollingButtons),
+        ENUM_ENTRY(ImGuiTabBarFlags, NoTooltip),
+        ENUM_ENTRY(ImGuiTabBarFlags, FittingPolicyResizeDown),
+        ENUM_ENTRY(ImGuiTabBarFlags, FittingPolicyScroll),
+        ENUM_ENTRY(ImGuiTabBarFlags, FittingPolicyMask),
+        ENUM_ENTRY(ImGuiTabBarFlags, FittingPolicyDefault),
+        
+        ENUM_ENTRY(ImGuiTabItemFlags, None),
+        ENUM_ENTRY(ImGuiTabItemFlags, UnsavedDocument),
+        ENUM_ENTRY(ImGuiTabItemFlags, SetSelected),
+        ENUM_ENTRY(ImGuiTabItemFlags, NoCloseWithMiddleMouseButton),
+        ENUM_ENTRY(ImGuiTabItemFlags, NoPushId),
+        ENUM_ENTRY(ImGuiTabItemFlags, NoTooltip),
+        
+        ENUM_ENTRY(ImGuiTreeNodeFlags, None),
+        ENUM_ENTRY(ImGuiTreeNodeFlags, Selected),
+        ENUM_ENTRY(ImGuiTreeNodeFlags, Framed),
+        ENUM_ENTRY(ImGuiTreeNodeFlags, AllowItemOverlap),
+        ENUM_ENTRY(ImGuiTreeNodeFlags, NoTreePushOnOpen),
+        ENUM_ENTRY(ImGuiTreeNodeFlags, NoAutoOpenOnLog),
+        ENUM_ENTRY(ImGuiTreeNodeFlags, DefaultOpen),
+        ENUM_ENTRY(ImGuiTreeNodeFlags, OpenOnDoubleClick),
+        ENUM_ENTRY(ImGuiTreeNodeFlags, OpenOnArrow),
+        ENUM_ENTRY(ImGuiTreeNodeFlags, Leaf),
+        ENUM_ENTRY(ImGuiTreeNodeFlags, Bullet),
+        ENUM_ENTRY(ImGuiTreeNodeFlags, FramePadding),
+        ENUM_ENTRY(ImGuiTreeNodeFlags, SpanAvailWidth),
+        ENUM_ENTRY(ImGuiTreeNodeFlags, SpanFullWidth),
+        ENUM_ENTRY(ImGuiTreeNodeFlags, NavLeftJumpsBackHere),
+        // ENUM_ENTRY(ImGuiTreeNodeFlags, NoScrollOpen), // Unavailable in current version
+        ENUM_ENTRY(ImGuiTreeNodeFlags, CollapsingHeader),
+        
+        ENUM_ENTRY(ImGuiWindowFlags, None),
+        ENUM_ENTRY(ImGuiWindowFlags, NoTitleBar),
+        ENUM_ENTRY(ImGuiWindowFlags, NoResize),
+        ENUM_ENTRY(ImGuiWindowFlags, NoMove),
+        ENUM_ENTRY(ImGuiWindowFlags, NoScrollbar),
+        ENUM_ENTRY(ImGuiWindowFlags, NoScrollWithMouse),
+        ENUM_ENTRY(ImGuiWindowFlags, NoCollapse),
+        ENUM_ENTRY(ImGuiWindowFlags, AlwaysAutoResize),
+        ENUM_ENTRY(ImGuiWindowFlags, NoBackground),
+        ENUM_ENTRY(ImGuiWindowFlags, NoSavedSettings),
+        ENUM_ENTRY(ImGuiWindowFlags, NoMouseInputs),
+        ENUM_ENTRY(ImGuiWindowFlags, MenuBar),
+        ENUM_ENTRY(ImGuiWindowFlags, HorizontalScrollbar),
+        ENUM_ENTRY(ImGuiWindowFlags, NoFocusOnAppearing),
+        ENUM_ENTRY(ImGuiWindowFlags, NoBringToFrontOnFocus),
+        ENUM_ENTRY(ImGuiWindowFlags, AlwaysVerticalScrollbar),
+        ENUM_ENTRY(ImGuiWindowFlags, AlwaysHorizontalScrollbar),
+        ENUM_ENTRY(ImGuiWindowFlags, AlwaysUseWindowPadding),
+        ENUM_ENTRY(ImGuiWindowFlags, NoNavInputs),
+        ENUM_ENTRY(ImGuiWindowFlags, NoNavFocus),
+        ENUM_ENTRY(ImGuiWindowFlags, UnsavedDocument),
+        ENUM_ENTRY(ImGuiWindowFlags, NoNav),
+        ENUM_ENTRY(ImGuiWindowFlags, NoDecoration),
+        ENUM_ENTRY(ImGuiWindowFlags, NoInputs),
+        
+    };
+
+#undef ENUM_ENTRY
+#undef ENUM_ENTRY_NAME
+#undef ENUM_ENTRY_VALUE
 }
 
 namespace Chimera {
-    void set_up_imgui_functions(lua_State *state, unsigned int /*api*/) noexcept {
-        // prefer data-oriented approach for minimal code size
+    void set_up_imgui_binding(lua_State *L, unsigned int /*api*/) noexcept {
         for (auto [name, fn] : functions)
-            lua_register(state, name, fn);
+            lua_register(L, name, fn);
+        
+        for (auto [name, constant] : enum_constants) {
+            lua_pushinteger(L, constant);
+            lua_setglobal(L, name);
+        }
     }
 }

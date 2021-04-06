@@ -11,7 +11,7 @@ namespace Chimera {
      * @param state state to set up functions for
      * @param api   API to target
      */
-    void set_up_imgui_functions(lua_State *state, unsigned int api) noexcept;
+    void set_up_imgui_binding(lua_State *L, unsigned int api) noexcept;
 }
 
 #endif
