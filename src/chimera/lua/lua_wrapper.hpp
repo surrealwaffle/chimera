@@ -8,6 +8,7 @@
 #include <optional>
 #include <tuple>
 #include <type_traits>
+#include <mutex>
 #include <utility>
 #include <string>
 #include <string_view>
@@ -21,7 +22,7 @@
  * More interfacing may be added here as requested/needed.
  *
  * This wrapper targets C++17, so the metaprogramming involved may look 
- * terrifying for the uninitiated. Concepts and relaxed NTTP requirements would
+ * terrifying to the uninitiated. Concepts and relaxed NTTP requirements would
  * handily improve readability and functionality.
  * To alleviate C++17 restrictions, ADL is employed as an expansion point so 
  * that if/when Chimera transitions to C++20, NTTP relaxations can be leveraged
@@ -31,7 +32,7 @@
  *  * wrap_function,
  *  * wrap_with_defaults, and
  *  * invoke_native.
- * wrap_function is composes wrap_with_defaults and invoke_native, but all
+ * wrap_function composes wrap_with_defaults and invoke_native, but all
  * three are provided for reuse.
  */
 
@@ -134,7 +135,11 @@ namespace Chimera { namespace lua_wrapper {
      *  * floating point types (`std::is_floating_point`),
      *  * `std::string` and `std::string_view`,
      *  * `std::optional`s of supported types,
-     *  * tuple-like objects of supported types.
+     *  * tuple-like objects of supported types,
+     *  * `std::vector` of supported types,
+     *  * `array_view` of supported types (argument only),
+     *  * `std::scoped_lock`, `std::lock_guard`, `std::unique_lock`,
+     *    as a return (does not push anything for a return).
      * 
      * A type `T` is considered tuple-like if `std::tuple_size<T>::value` is 
      * not ill-formed as an unevaluated operand.
@@ -190,6 +195,8 @@ namespace Chimera { namespace lua_wrapper {
      * to a table that is read like an array of @a T.
      *
      * Delegation translates between 0-based and 1-based indices.
+     * It is assumed that stack frame is neither popped nor another pushed,
+     * and the index at which the table is stored remains unchanged.
      */
     template<typename T>
     struct array_view {
@@ -818,7 +825,7 @@ namespace Chimera { namespace lua_wrapper {
     {
         using type = embedded_return<Tuple>;
         
-        static int push(lua_State *L, int arg, const type& value)
+        static int push(lua_State *L, const type& value)
         {
             using stored = typename make_stored<Tuple>::type;
             
@@ -833,13 +840,96 @@ namespace Chimera { namespace lua_wrapper {
         array_view<T>,
         void>
     {
-        static int push(lua_State *L, int arg, const array_view<T>&) = delete;
+        static int push(lua_State *L, const array_view<T>&) = delete;
         
         static int assign(lua_State *L, int arg, array_view<T>& dest)
         {
             dest = array_view<T>{L, arg};
             return 0;
         }
+    };
+    
+    template<typename T, typename Allocator>
+    struct frame_interface<
+        std::vector<T, Allocator>,
+        void>
+    {
+        using vector = std::vector<T, Allocator>;
+        using element = typename make_stored<T>::type;
+        
+        static int push(lua_State *L, const vector& value)
+        {
+            lua_createtable(L, static_cast<int>(value.size()), 0);
+            int total_pushed = 0;
+            for (auto& v : value) {
+                // elements are on stack in reverse order, so we need fancy
+                // math to work lua_seti correctly
+                const int push_amount = frame_interface<element>::push(v);
+                for (int sub_elem = push_amount; sub_elem > 0; --sub_elem) {
+                    lua_seti(L, total_pushed + sub_elem, -push_amount - 1);
+                }
+                total_pushed += push_amount;
+            }
+            
+            return 1;
+        }
+        
+        static int assign(lua_State *L, int arg, vector& dest)
+        {
+            dest.clear();
+            
+            int i = 0;
+            for (auto& v : dest) {
+                lua_geti(L, arg, ++i);
+                if (frame_interface<element>::assign(L, -1, v) != 0)
+                    return luaL_error("failed to assign to vector element");
+                lua_pop(L, 1);
+            }
+            
+            return 0;
+        }
+    };
+    
+    template<typename Mutex>
+    struct frame_interface<
+        std::lock_guard<Mutex>,
+        void>
+    {
+        static int push(lua_State *, const std::lock_guard<Mutex>&)
+        {
+            // NO OPERATION
+            return 0;
+        }
+        
+        static int assign(lua_State *L, std::lock_guard<Mutex>&) = delete;
+    };
+    
+    template<typename... MutexTypes>
+    struct frame_interface<
+        std::scoped_lock<MutexTypes...>,
+        void>
+    {
+        static int push(lua_State *, const std::scoped_lock<MutexTypes...>&)
+        {
+            // NO OPERATION
+            return 0;
+        }
+        
+        static int assign(lua_State *L, std::scoped_lock<MutexTypes...>&) = delete;
+    };
+    
+    template<typename Mutex>
+    struct frame_interface<
+        std::unique_lock<Mutex>,
+        void>
+    {
+        static int push(lua_State *, const std::unique_lock<Mutex>&)
+        {
+            // NO OPERATION
+            return 0;
+        }
+        
+        static int assign(lua_State *L, std::unique_lock<Mutex>&) = delete;
     };
     
 } } // namespace Chimera::lua_wrapper
